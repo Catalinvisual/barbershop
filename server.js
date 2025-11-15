@@ -51,6 +51,14 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+const requiredEnv = ['ADMIN_EMAIL','ADMIN_PASSWORD','JWT_SECRET'];
+const optionalEnv = ['GOOGLE_SERVICE_ACCOUNT_EMAIL','GOOGLE_PRIVATE_KEY','GOOGLE_SHEET_ID','EMAIL_HOST','EMAIL_PORT','EMAIL_USER','EMAIL_PASS','CLIENT_URL'];
+const present = (key) => Boolean(process.env[key] && process.env[key].trim());
+console.log('[Config] Env presence:', Object.fromEntries([
+  ...requiredEnv.map(k => [k, present(k)]),
+  ...optionalEnv.map(k => [k, present(k)])
+]));
+
 const clientDist = path.join(__dirname, 'client', 'dist');
 if (fs.existsSync(clientDist)) {
   app.use(express.static(clientDist));

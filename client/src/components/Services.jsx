@@ -12,21 +12,24 @@ const Services = () => {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.fromTo('.service-card', 
-        { opacity: 0, y: 50 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.8,
-          stagger: 0.2,
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: servicesRef.current,
-            start: 'top 95%',
-            toggleActions: 'play none none reverse'
+      const cards = document.querySelectorAll('.service-card');
+      if (cards.length > 0) {
+        gsap.fromTo(cards, 
+          { opacity: 0, y: 50 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            stagger: 0.2,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: servicesRef.current,
+              start: 'top 95%',
+              toggleActions: 'play none none reverse'
+            }
           }
-        }
-      );
+        );
+      }
     }, servicesRef);
 
     return () => ctx.revert();

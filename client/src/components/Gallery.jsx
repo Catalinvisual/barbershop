@@ -12,21 +12,24 @@ const Gallery = () => {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.fromTo('.gallery-item',
-        { opacity: 0, scale: 0.8 },
-        {
-          opacity: 1,
-          scale: 1,
-          duration: 0.8,
-          stagger: 0.2,
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: galleryRef.current,
-            start: 'top 95%',
-            toggleActions: 'play none none reverse'
+      const items = document.querySelectorAll('.gallery-item');
+      if (items.length > 0) {
+        gsap.fromTo(items,
+          { opacity: 0, scale: 0.8 },
+          {
+            opacity: 1,
+            scale: 1,
+            duration: 0.8,
+            stagger: 0.2,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: galleryRef.current,
+              start: 'top 95%',
+              toggleActions: 'play none none reverse'
+            }
           }
-        }
-      );
+        );
+      }
     }, galleryRef);
 
     return () => ctx.revert();
