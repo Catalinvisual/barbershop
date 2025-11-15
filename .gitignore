@@ -1,0 +1,9 @@
+node_modules/
+client/node_modules/
+client/dist/
+uploads/
+.env
+.env.local
+.env.production
+.env.development
+*.log
