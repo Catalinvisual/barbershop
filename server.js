@@ -16,7 +16,21 @@ const limiter = rateLimit({
 if ((process.env.NODE_ENV || 'development') !== 'development') {
   app.use(limiter);
 }
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    useDefaults: true,
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "https://www.google.com", "https://maps.googleapis.com"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https://www.google.com", "https://maps.gstatic.com"],
+      frameSrc: ["'self'", "https://www.google.com"],
+      connectSrc: ["'self'"],
+    },
+  },
+  crossOriginEmbedderPolicy: false,
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+}));
 app.use(cors({
   origin: process.env.CLIENT_URL || 'http://localhost:3000',
   credentials: true
