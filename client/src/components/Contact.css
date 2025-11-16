@@ -115,6 +115,8 @@
   align-items: center;
   gap: 1rem;
   transition: var(--transition);
+  flex-direction: column;
+  text-align: center;
 }
 
 .info-card:hover {
@@ -213,36 +215,24 @@
 .social-link.twitter .social-icon { color: #1da1f2; }
 .social-link.youtube .social-icon { color: #ff0000; }
 
-.map-placeholder {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 10px;
-  padding: 2rem;
-  text-align: center;
-  color: white;
-  cursor: pointer;
-  transition: var(--transition);
+.map-embed {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
   box-shadow: var(--shadow);
 }
 
-.map-placeholder:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+.map-embed iframe {
+  display: block;
+  width: 100%;
+  height: 320px;
+  border: 0;
 }
 
-.map-content .map-icon {
-  font-size: 2rem;
-  margin-bottom: 1rem;
-}
-
-.map-content p {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-
-.map-content small {
-  opacity: 0.8;
-  font-size: 0.9rem;
+@media (min-width: 768px) {
+  .map-embed iframe {
+    height: 360px;
+  }
 }
 
 .loading {

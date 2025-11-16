@@ -205,15 +205,10 @@
   }
   
   .hero-features {
-    flex-direction: column;
-    gap: 1rem;
-    align-items: center;
+    display: none;
   }
   
-  .feature {
-    width: 250px;
-    justify-content: center;
-  }
+  .feature { display: none; }
 }
 
 @media (max-width: 480px) {

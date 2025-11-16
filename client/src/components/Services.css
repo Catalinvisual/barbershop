@@ -213,4 +213,7 @@
   .service-price {
     font-size: 1.3rem;
   }
+  .service-details{
+    text-align: center;
+  }
 }

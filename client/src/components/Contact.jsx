@@ -61,7 +61,7 @@ const Contact = () => {
     {
       icon: FaMapMarkerAlt,
       title: 'Address',
-      content: '123 Main Street\nNew York, NY 10001',
+      content: 'Emmeloord\nNetherlands',
       type: 'address'
     },
     {
@@ -215,12 +215,14 @@ const Contact = () => {
               </div>
             </div>
             
-            <div className="map-placeholder">
-              <div className="map-content">
-                <div className="map-icon">🗺️</div>
-                <p>Interactive Map</p>
-                <small>Click to view on Google Maps</small>
-              </div>
+            <div className="map-embed">
+              <iframe
+                title="Map Emmeloord, Netherlands"
+                src="https://www.google.com/maps?q=Emmeloord%2C%20Netherlands&z=13&output=embed"
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              ></iframe>
             </div>
           </div>
         </div>
