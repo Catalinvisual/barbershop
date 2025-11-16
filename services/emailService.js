@@ -68,7 +68,25 @@ class EmailService {
         `,
       };
 
-      await this.transporter.sendMail(mailOptions);
+      try {
+        await this.transporter.sendMail(mailOptions);
+      } catch (primaryError) {
+        const transient = ['ETIMEDOUT', 'ESOCKET', 'ECONNECTION'];
+        if (transient.includes(primaryError.code || '')) {
+          const fallbackTransporter = nodemailer.createTransport({
+            host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+            port: 465,
+            secure: true,
+            auth: {
+              user: process.env.EMAIL_USER,
+              pass: process.env.EMAIL_PASS,
+            }
+          });
+          await fallbackTransporter.sendMail(mailOptions);
+        } else {
+          throw primaryError;
+        }
+      }
       console.log('Confirmation email sent successfully');
     } catch (error) {
       console.error('Error sending confirmation email:', error);
@@ -107,7 +125,25 @@ class EmailService {
         `,
       };
 
-      await this.transporter.sendMail(mailOptions);
+      try {
+        await this.transporter.sendMail(mailOptions);
+      } catch (primaryError) {
+        const transient = ['ETIMEDOUT', 'ESOCKET', 'ECONNECTION'];
+        if (transient.includes(primaryError.code || '')) {
+          const fallbackTransporter = nodemailer.createTransport({
+            host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+            port: 465,
+            secure: true,
+            auth: {
+              user: process.env.EMAIL_USER,
+              pass: process.env.EMAIL_PASS,
+            }
+          });
+          await fallbackTransporter.sendMail(mailOptions);
+        } else {
+          throw primaryError;
+        }
+      }
       console.log('Contact email sent successfully');
     } catch (error) {
       console.error('Error sending contact email:', error);
