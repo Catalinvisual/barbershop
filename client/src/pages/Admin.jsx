@@ -557,22 +557,6 @@ const Admin = () => {
 
       <main className="admin-main">
         <div className="container">
-          {activeTab === 'appointments' && (
-            <div className="toolbar" style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
-              <button className="btn" onClick={async () => {
-                try {
-                  const token = localStorage.getItem('adminToken');
-                  const res = await axios.post('/api/admin/appointments/migrate-ids', {}, { headers: { 'Authorization': `Bearer ${token}` } });
-                  if (res.data.success) {
-                    toast.success(`IDs updated: ${res.data.updated}`);
-                    await fetchAppointments();
-                  }
-                } catch (e) {
-                  toast.error('Failed to migrate appointment IDs');
-                }
-              }}>Fix missing IDs</button>
-            </div>
-          )}
           {confirmState.visible && (
             <div className="modal-overlay">
               <div className="modal">

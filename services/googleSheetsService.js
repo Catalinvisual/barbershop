@@ -283,43 +283,6 @@ class GoogleSheetsService {
     }
   }
 
-  async ensureAppointmentIds() {
-    try {
-      if (!this.spreadsheetId) {
-        console.log('Google Sheets not configured, ensureAppointmentIds noop');
-        return { updated: 0 };
-      }
-      const response = await this.sheets.spreadsheets.values.get({
-        spreadsheetId: this.spreadsheetId,
-        range: 'appoiments!A:K',
-      });
-      const rows = response.data.values || [];
-      if (rows.length <= 1) return { updated: 0 };
-      const dataRows = rows.slice(1);
-      let updated = 0;
-      for (let i = 0; i < dataRows.length; i++) {
-        const row = dataRows[i];
-        const id = (row[0] || '').trim();
-        if (!id) {
-          const newId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-          const targetRow = i + 2;
-          const range = `appoiments!A${targetRow}`;
-          await this.sheets.spreadsheets.values.update({
-            spreadsheetId: this.spreadsheetId,
-            range,
-            valueInputOption: 'RAW',
-            resource: { values: [[newId]] }
-          });
-          updated++;
-        }
-      }
-      return { updated };
-    } catch (error) {
-      console.error('Error ensuring appointment IDs:', error);
-      return { updated: 0 };
-    }
-  }
-
   async addMessage(messageData) {
     try {
       const messageId = Date.now().toString();
