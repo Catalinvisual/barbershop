@@ -86,9 +86,10 @@ class GoogleSheetsService {
           
           const rows = response.data.values || [];
           console.log('Raw rows from Google Sheets:', rows);
-          
-          if (rows.length > 0) {
-            sheetsAppointments = rows.slice(1).map((row) => ({
+
+          const dataRows = rows.slice(1).filter(row => Array.isArray(row) && row.some(v => String(v || '').trim() !== ''));
+          if (dataRows.length > 0) {
+            sheetsAppointments = dataRows.map((row) => ({
               id: row[0] || '',
               name: row[1] || '',
               phone: row[2] || '',
@@ -107,9 +108,14 @@ class GoogleSheetsService {
         }
       }
 
-      // Combine Google Sheets appointments with local appointments
-      const allAppointments = [...sheetsAppointments, ...this.localAppointments];
-      console.log('Combined appointments (Sheets + Local):', allAppointments);
+      // If Sheets is configured, return only Sheets data to avoid duplications
+      if (this.spreadsheetId) {
+        console.log('Appointments from Google Sheets:', sheetsAppointments);
+        return sheetsAppointments;
+      }
+      // Otherwise include local fallback
+      const allAppointments = [...this.localAppointments];
+      console.log('Appointments from local fallback:', allAppointments);
       return allAppointments;
     } catch (error) {
       console.error('Error fetching appointments:', error);
@@ -216,6 +222,8 @@ class GoogleSheetsService {
         range: range,
       });
 
+      // Also remove from local fallback store if present
+      this.localAppointments = this.localAppointments.filter(a => a.id !== id);
       return true;
     } catch (error) {
       console.error('Error deleting appointment:', error);

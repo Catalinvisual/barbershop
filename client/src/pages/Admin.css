@@ -976,6 +976,23 @@
   font-size: 1.1rem;
   color: var(--primary-color);
 }
+/* Admin overflow fixes */
+.table-responsive { overflow-x: hidden !important; }
+.client-name, .contact-info, .email, .phone { word-break: break-word; }
+
+@media (max-width: 768px) {
+  .appointments-table th:nth-child(5),
+  .appointments-table td:nth-child(5),
+  .appointments-table th:nth-child(7),
+  .appointments-table td:nth-child(7) { display: none; }
+}
+
+@media (max-width: 480px) {
+  .appointments-table th:nth-child(4),
+  .appointments-table td:nth-child(4) { display: none; }
+  .status-badge { font-size: 0.7rem; }
+  .status-select { font-size: 0.7rem; }
+}
 
 .work-description {
   margin: 0;
