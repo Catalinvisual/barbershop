@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const { google } = require('googleapis');
 
 class EmailService {
   constructor() {
@@ -64,6 +65,42 @@ class EmailService {
       console.log('Email service not configured - will log emails instead');
       this.isConfigured = false;
     }
+    this.gmailApiConfigured = !!(process.env.GMAIL_CLIENT_ID && process.env.GMAIL_CLIENT_SECRET && process.env.GMAIL_REFRESH_TOKEN && process.env.EMAIL_USER);
+  }
+
+  async sendViaGmailApi(mailOptions) {
+    const oauth2Client = new google.auth.OAuth2(process.env.GMAIL_CLIENT_ID, process.env.GMAIL_CLIENT_SECRET);
+    oauth2Client.setCredentials({ refresh_token: process.env.GMAIL_REFRESH_TOKEN });
+    const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
+    const to = Array.isArray(mailOptions.to) ? mailOptions.to.join(', ') : mailOptions.to;
+    const from = mailOptions.from;
+    const subject = mailOptions.subject;
+    const replyTo = mailOptions.replyTo || '';
+    const text = mailOptions.text || '';
+    const html = mailOptions.html || '';
+    const headers = mailOptions.headers || {};
+    const headerLines = Object.entries(headers).map(([k, v]) => `${k}: ${v}`);
+    const parts = [
+      `From: ${from}`,
+      `To: ${to}`,
+      `Subject: ${subject}`,
+      replyTo ? `Reply-To: ${replyTo}` : '',
+      ...headerLines,
+      'MIME-Version: 1.0',
+      'Content-Type: multipart/alternative; boundary="bnd"',
+      '',
+      '--bnd',
+      'Content-Type: text/plain; charset="UTF-8"',
+      '',
+      text,
+      '--bnd',
+      'Content-Type: text/html; charset="UTF-8"',
+      '',
+      html,
+      '--bnd--'
+    ].filter(Boolean).join('\r\n');
+    const raw = Buffer.from(parts).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    await gmail.users.messages.send({ userId: 'me', requestBody: { raw } });
   }
 
   async sendConfirmationEmail(to, appointmentData) {
@@ -148,7 +185,15 @@ class EmailService {
               connectionTimeout: 20000,
               socketTimeout: 20000,
             });
-            await altTransporter.sendMail(mailOptions);
+            try {
+              await altTransporter.sendMail(mailOptions);
+            } catch (altError) {
+              if (this.gmailApiConfigured) {
+                await this.sendViaGmailApi(mailOptions);
+              } else {
+                throw primaryError;
+              }
+            }
           }
         } else {
           throw primaryError;
@@ -216,7 +261,15 @@ class EmailService {
               connectionTimeout: 20000,
               socketTimeout: 20000,
             });
-            await altTransporter.sendMail(mailOptions);
+            try {
+              await altTransporter.sendMail(mailOptions);
+            } catch (altError) {
+              if (this.gmailApiConfigured) {
+                await this.sendViaGmailApi(mailOptions);
+              } else {
+                throw primaryError;
+              }
+            }
           }
         } else {
           throw primaryError;
