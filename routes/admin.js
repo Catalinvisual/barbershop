@@ -67,7 +67,10 @@ router.put('/appointments/:id/status', authenticateToken, async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
     
-    await googleSheetsService.updateAppointmentStatus(id, status);
+    const ok = await googleSheetsService.updateAppointmentStatus(id, status);
+    if (!ok) {
+      return res.status(404).json({ success: false, message: 'Appointment not found' });
+    }
     res.json({ success: true, message: 'Appointment status updated' });
   } catch (error) {
     console.error('Update appointment error:', error);
@@ -78,7 +81,10 @@ router.put('/appointments/:id/status', authenticateToken, async (req, res) => {
 router.delete('/appointments/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
-    await googleSheetsService.deleteAppointment(id);
+    const ok = await googleSheetsService.deleteAppointment(id);
+    if (!ok) {
+      return res.status(404).json({ success: false, message: 'Appointment not found' });
+    }
     res.json({ success: true, message: 'Appointment deleted' });
   } catch (error) {
     console.error('Delete appointment error:', error);

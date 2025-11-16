@@ -171,7 +171,7 @@ class GoogleSheetsService {
 
       // Find the row number for this appointment ID
       const appointments = await this.getAllAppointments();
-      const appointment = appointments.find(apt => apt.id === id);
+      const appointment = appointments.find(apt => String(apt.id) === String(id));
       
       if (!appointment) {
         console.log(`Appointment with ID ${id} not found`);
@@ -179,7 +179,7 @@ class GoogleSheetsService {
       }
 
       // Calculate the row number (header row + index + 1)
-      const rowIndex = appointments.findIndex(apt => apt.id === id) + 2; // +2 for header row and 1-based indexing
+      const rowIndex = appointments.findIndex(apt => String(apt.id) === String(id)) + 2; // +2 for header row and 1-based indexing
 
       const range = `appoiments!J${rowIndex}`; // Status is in column J (10th column)
       await this.sheets.spreadsheets.values.update({
@@ -206,7 +206,7 @@ class GoogleSheetsService {
 
       // Find the row number for this appointment ID
       const appointments = await this.getAllAppointments();
-      const appointment = appointments.find(apt => apt.id === id);
+      const appointment = appointments.find(apt => String(apt.id) === String(id));
       
       if (!appointment) {
         console.log(`Appointment with ID ${id} not found`);
@@ -214,7 +214,7 @@ class GoogleSheetsService {
       }
 
       // Calculate the row number (header row + index + 1)
-      const rowIndex = appointments.findIndex(apt => apt.id === id) + 2; // +2 for header row and 1-based indexing
+      const rowIndex = appointments.findIndex(apt => String(apt.id) === String(id)) + 2; // +2 for header row and 1-based indexing
 
       const range = `appoiments!A${rowIndex}:K${rowIndex}`;
       await this.sheets.spreadsheets.values.clear({
