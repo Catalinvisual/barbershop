@@ -2,8 +2,45 @@ const nodemailer = require('nodemailer');
 
 class EmailService {
   constructor() {
-    // Only create transporter if email credentials are configured
-    if (process.env.EMAIL_HOST && process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+    const hasGmail = process.env.EMAIL_HOST && process.env.EMAIL_USER && process.env.EMAIL_PASS;
+    const hasSendGrid = process.env.SENDGRID_KEY;
+    if (hasSendGrid) {
+      this.transporter = nodemailer.createTransport({
+        host: 'smtp.sendgrid.net',
+        port: 465,
+        secure: true,
+        auth: {
+          user: 'apikey',
+          pass: process.env.SENDGRID_KEY,
+        },
+        pool: true,
+        maxConnections: 1,
+        maxMessages: Infinity,
+        connectionTimeout: 10000,
+        socketTimeout: 10000,
+      });
+      if (hasGmail) {
+        const isGmail = String(process.env.EMAIL_HOST).includes('gmail');
+        const defaultPort = process.env.EMAIL_PORT
+          ? Number(process.env.EMAIL_PORT)
+          : (isGmail ? 465 : 587);
+        this.fallbackTransporter = nodemailer.createTransport({
+          host: process.env.EMAIL_HOST,
+          port: defaultPort,
+          secure: defaultPort === 465,
+          auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS,
+          },
+          pool: true,
+          maxConnections: 1,
+          maxMessages: Infinity,
+          connectionTimeout: 10000,
+          socketTimeout: 10000,
+        });
+      }
+      this.isConfigured = true;
+    } else if (hasGmail) {
       const isGmail = String(process.env.EMAIL_HOST).includes('gmail');
       const defaultPort = process.env.EMAIL_PORT
         ? Number(process.env.EMAIL_PORT)
@@ -22,9 +59,6 @@ class EmailService {
         connectionTimeout: 10000,
         socketTimeout: 10000,
       });
-      this.transporter.verify()
-        .then(() => console.log('SMTP verified'))
-        .catch((e) => console.log('SMTP verify failed:', e.code || e.message));
       this.isConfigured = true;
     } else {
       console.log('Email service not configured - will log emails instead');
@@ -48,8 +82,9 @@ class EmailService {
         headers['List-Unsubscribe'] = `mailto:${process.env.ADMIN_EMAIL}`;
       }
 
+      const fromEmail = process.env.FROM_EMAIL || process.env.EMAIL_USER;
       const mailOptions = {
-        from: `"Barbershop" <${process.env.EMAIL_USER}>`,
+        from: `"Barbershop" <${fromEmail}>`,
         to: to,
         subject: 'Appointment Confirmation – Barbershop',
         html: `
@@ -97,16 +132,24 @@ class EmailService {
       } catch (primaryError) {
         const transient = ['ETIMEDOUT', 'ESOCKET', 'ECONNECTION'];
         if (transient.includes(primaryError.code || '')) {
-          const fallbackTransporter = nodemailer.createTransport({
-            host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-            port: 465,
-            secure: true,
-            auth: {
-              user: process.env.EMAIL_USER,
-              pass: process.env.EMAIL_PASS,
-            }
-          });
-          await fallbackTransporter.sendMail(mailOptions);
+          if (this.fallbackTransporter) {
+            await this.fallbackTransporter.sendMail(mailOptions);
+          } else {
+            const altPort = (this.transporter.options.port === 465) ? 587 : 465;
+            const altSecure = altPort === 465;
+            const altTransporter = nodemailer.createTransport({
+              host: process.env.EMAIL_HOST,
+              port: altPort,
+              secure: altSecure,
+              auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS,
+              },
+              connectionTimeout: 20000,
+              socketTimeout: 20000,
+            });
+            await altTransporter.sendMail(mailOptions);
+          }
         } else {
           throw primaryError;
         }
@@ -125,6 +168,7 @@ class EmailService {
         return;
       }
 
+      const fromEmail = process.env.FROM_EMAIL || process.env.EMAIL_USER;
       const mailOptions = {
         from: `"${contactData.name}" <${contactData.email}>`,
         to: process.env.ADMIN_EMAIL,
@@ -156,16 +200,24 @@ class EmailService {
       } catch (primaryError) {
         const transient = ['ETIMEDOUT', 'ESOCKET', 'ECONNECTION'];
         if (transient.includes(primaryError.code || '')) {
-          const fallbackTransporter = nodemailer.createTransport({
-            host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-            port: 465,
-            secure: true,
-            auth: {
-              user: process.env.EMAIL_USER,
-              pass: process.env.EMAIL_PASS,
-            }
-          });
-          await fallbackTransporter.sendMail(mailOptions);
+          if (this.fallbackTransporter) {
+            await this.fallbackTransporter.sendMail(mailOptions);
+          } else {
+            const altPort = (this.transporter.options.port === 465) ? 587 : 465;
+            const altSecure = altPort === 465;
+            const altTransporter = nodemailer.createTransport({
+              host: process.env.EMAIL_HOST,
+              port: altPort,
+              secure: altSecure,
+              auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS,
+              },
+              connectionTimeout: 20000,
+              socketTimeout: 20000,
+            });
+            await altTransporter.sendMail(mailOptions);
+          }
         } else {
           throw primaryError;
         }
