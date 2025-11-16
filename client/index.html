@@ -11,9 +11,9 @@
       if ('scrollRestoration' in history) {
         history.scrollRestoration = 'manual';
       }
-      window.addEventListener('load', function () {
-        window.scrollTo(0, 0);
-      });
+      function scrollTop() { window.scrollTo(0, 0); }
+      window.addEventListener('load', scrollTop);
+      window.addEventListener('pageshow', scrollTop);
     </script>
   </head>
   <body>

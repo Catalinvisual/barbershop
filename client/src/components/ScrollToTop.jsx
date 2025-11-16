@@ -17,6 +17,13 @@ const ScrollToTop = () => {
       window.history.scrollRestoration = 'manual';
     }
     window.scrollTo({ top: 0, behavior: 'auto' });
+    const onPageShow = () => {
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    };
+    window.addEventListener('pageshow', onPageShow);
+    return () => {
+      window.removeEventListener('pageshow', onPageShow);
+    };
   }, []);
 
   return null;
