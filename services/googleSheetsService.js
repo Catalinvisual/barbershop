@@ -163,32 +163,56 @@ class GoogleSheetsService {
 
   async updateAppointmentStatus(id, status) {
     try {
+      console.log(`Updating appointment ${id} to status: ${status}`);
+      
       // If Google Sheets is not configured, just log and return success
       if (!this.spreadsheetId) {
         console.log(`Google Sheets not configured, would update appointment ${id} to status: ${status}`);
         return true;
       }
 
-      // Find the row number for this appointment ID
-      const appointments = await this.getAllAppointments();
-      const appointment = appointments.find(apt => String(apt.id) === String(id));
+      // Get raw data from Google Sheets to find correct row index
+      const response = await this.sheets.spreadsheets.values.get({
+        spreadsheetId: this.spreadsheetId,
+        range: 'appoiments!A:K',
+      });
+
+      const rows = response.data.values || [];
+      console.log(`Found ${rows.length} total rows in Google Sheets`);
       
-      if (!appointment) {
-        console.log(`Appointment with ID ${id} not found`);
+      if (rows.length <= 1) {
+        console.log('No data rows found in Google Sheets');
         return false;
       }
 
-      // Calculate the row number (header row + index + 1)
-      const rowIndex = appointments.findIndex(apt => String(apt.id) === String(id)) + 2; // +2 for header row and 1-based indexing
+      // Find the row with matching ID (skip header row)
+      let rowIndex = -1;
+      for (let i = 1; i < rows.length; i++) {
+        const rowId = rows[i][0] || '';
+        if (String(rowId) === String(id)) {
+          rowIndex = i + 1; // +1 for 1-based indexing in Google Sheets
+          break;
+        }
+      }
+      
+      if (rowIndex === -1) {
+        console.log(`Appointment with ID ${id} not found in Google Sheets`);
+        return false;
+      }
+
+      console.log(`Found appointment ${id} at row ${rowIndex}`);
 
       const range = `appoiments!J${rowIndex}`; // Status is in column J (10th column)
+      console.log(`Updating range: ${range}`);
+      
       await this.sheets.spreadsheets.values.update({
         spreadsheetId: this.spreadsheetId,
         range: range,
         valueInputOption: 'RAW',
         resource: { values: [[status]] },
       });
-
+      
+      console.log(`Successfully updated appointment ${id} to status ${status}`);
       return true;
     } catch (error) {
       console.error('Error updating appointment status:', error);
@@ -209,18 +233,36 @@ class GoogleSheetsService {
         return true;
       }
 
-      // Find the row number for this appointment ID
-      const appointments = await this.getAllAppointments();
-      console.log(`Found ${appointments.length} appointments total`);
-      const appointment = appointments.find(apt => String(apt.id) === String(id));
+      // Get raw data from Google Sheets to find correct row index
+      const response = await this.sheets.spreadsheets.values.get({
+        spreadsheetId: this.spreadsheetId,
+        range: 'appoiments!A:K',
+      });
+
+      const rows = response.data.values || [];
+      console.log(`Found ${rows.length} total rows in Google Sheets`);
       
-      if (!appointment) {
-        console.log(`Appointment with ID ${id} not found in ${appointments.length} appointments`);
+      if (rows.length <= 1) {
+        console.log('No data rows found in Google Sheets');
         return false;
       }
 
-      // Calculate the row number (header row + index + 1)
-      const rowIndex = appointments.findIndex(apt => String(apt.id) === String(id)) + 2; // +2 for header row and 1-based indexing
+      // Find the row with matching ID (skip header row)
+      let rowIndex = -1;
+      for (let i = 1; i < rows.length; i++) {
+        const rowId = rows[i][0] || '';
+        if (String(rowId) === String(id)) {
+          rowIndex = i + 1; // +1 for 1-based indexing in Google Sheets
+          break;
+        }
+      }
+      
+      if (rowIndex === -1) {
+        console.log(`Appointment with ID ${id} not found in Google Sheets`);
+        return false;
+      }
+
+      console.log(`Found appointment ${id} at row ${rowIndex}`);
 
       const range = `appoiments!A${rowIndex}:K${rowIndex}`;
       console.log(`Clearing range: ${range}`);
