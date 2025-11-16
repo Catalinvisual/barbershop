@@ -4,15 +4,27 @@ class EmailService {
   constructor() {
     // Only create transporter if email credentials are configured
     if (process.env.EMAIL_HOST && process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+      const isGmail = String(process.env.EMAIL_HOST).includes('gmail');
+      const defaultPort = process.env.EMAIL_PORT
+        ? Number(process.env.EMAIL_PORT)
+        : (isGmail ? 465 : 587);
       this.transporter = nodemailer.createTransport({
         host: process.env.EMAIL_HOST,
-        port: process.env.EMAIL_PORT || 587,
-        secure: false,
+        port: defaultPort,
+        secure: defaultPort === 465,
         auth: {
           user: process.env.EMAIL_USER,
           pass: process.env.EMAIL_PASS,
         },
+        pool: true,
+        maxConnections: 1,
+        maxMessages: Infinity,
+        connectionTimeout: 10000,
+        socketTimeout: 10000,
       });
+      this.transporter.verify()
+        .then(() => console.log('SMTP verified'))
+        .catch((e) => console.log('SMTP verify failed:', e.code || e.message));
       this.isConfigured = true;
     } else {
       console.log('Email service not configured - will log emails instead');
@@ -25,6 +37,15 @@ class EmailService {
       if (!this.isConfigured) {
         console.log(`Email not configured - would send confirmation to ${to}:`, appointmentData);
         return;
+      }
+
+      const headers = {
+        'X-Priority': '1',
+        'X-MSMail-Priority': 'High',
+        'Importance': 'High'
+      };
+      if (process.env.ADMIN_EMAIL) {
+        headers['List-Unsubscribe'] = `mailto:${process.env.ADMIN_EMAIL}`;
       }
 
       const mailOptions = {
@@ -66,6 +87,9 @@ class EmailService {
             </div>
           </div>
         `,
+        text: `Hi ${appointmentData.name},\nYour appointment is confirmed.\nService: ${appointmentData.service}\nDate: ${appointmentData.date}\nTime: ${appointmentData.time}\nIf you need to reschedule or cancel, please contact us.\nBarbershop Team${process.env.ADMIN_EMAIL ? `\n${process.env.ADMIN_EMAIL}` : ''}`,
+        replyTo: process.env.ADMIN_EMAIL || process.env.EMAIL_USER,
+        headers,
       };
 
       try {
@@ -123,6 +147,8 @@ class EmailService {
             </div>
           </div>
         `,
+        text: `New contact form submission from ${contactData.name}\nEmail: ${contactData.email}\n${contactData.phone ? `Phone: ${contactData.phone}\n` : ''}Subject: ${contactData.subject}\n\nMessage:\n${contactData.message}`,
+        replyTo: contactData.email,
       };
 
       try {
