@@ -177,18 +177,20 @@
   .nav {
     position: fixed;
     top: 0;
-    right: -100%;
+    right: 0;
     width: 80%;
     max-width: 300px;
     height: 100vh;
     background: var(--primary-color);
-    transition: var(--transition);
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
     z-index: 1001;
     padding: 2rem;
+    contain: paint;
   }
 
   .nav.active {
-    right: 0;
+    transform: translateX(0);
   }
 
   .nav-close {
