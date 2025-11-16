@@ -198,9 +198,10 @@ class GoogleSheetsService {
 
   async deleteAppointment(id) {
     try {
-      // If Google Sheets is not configured, just log and return success
+      // If Google Sheets is not configured, delete from local store
       if (!this.spreadsheetId) {
-        console.log(`Google Sheets not configured, would delete appointment ${id}`);
+        console.log(`Google Sheets not configured, deleting local appointment ${id}`);
+        this.localAppointments = this.localAppointments.filter(a => String(a.id) !== String(id));
         return true;
       }
 
