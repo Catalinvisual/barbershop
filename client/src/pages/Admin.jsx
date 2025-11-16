@@ -316,6 +316,10 @@ const Admin = () => {
 
   const updateAppointmentStatus = async (id, status) => {
     try {
+      if (!id) {
+        toast.error('Cannot update appointment without ID');
+        return;
+      }
       const token = localStorage.getItem('adminToken');
       const response = await axios.put(`/api/admin/appointments/${id}/status`,
         { status },
@@ -337,6 +341,10 @@ const Admin = () => {
 
   const deleteAppointment = async (id) => {
     try {
+      if (!id) {
+        toast.error('Cannot delete appointment without ID');
+        return;
+      }
       const token = localStorage.getItem('adminToken');
       const response = await axios.delete(`/api/admin/appointments/${id}`, {
         headers: {
@@ -538,6 +546,22 @@ const Admin = () => {
 
       <main className="admin-main">
         <div className="container">
+          {activeTab === 'appointments' && (
+            <div className="toolbar" style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+              <button className="btn" onClick={async () => {
+                try {
+                  const token = localStorage.getItem('adminToken');
+                  const res = await axios.post('/api/admin/appointments/migrate-ids', {}, { headers: { 'Authorization': `Bearer ${token}` } });
+                  if (res.data.success) {
+                    toast.success(`IDs updated: ${res.data.updated}`);
+                    await fetchAppointments();
+                  }
+                } catch (e) {
+                  toast.error('Failed to migrate appointment IDs');
+                }
+              }}>Fix missing IDs</button>
+            </div>
+          )}
           {confirmState.visible && (
             <div className="modal-overlay">
               <div className="modal">
@@ -714,6 +738,7 @@ const Admin = () => {
                                 <select
                                   value={appointment.status}
                                   onChange={(e) => updateAppointmentStatus(appointment.id, e.target.value)}
+                                  disabled={!appointment.id}
                                   className="status-select"
                                 >
                                   <option value="pending">Pending</option>
@@ -723,6 +748,7 @@ const Admin = () => {
                                 </select>
                                 <button
                                   onClick={() => setConfirmState({ visible: true, type: 'appointment', id: appointment.id, message: 'Delete this appointment?' })}
+                                  disabled={!appointment.id}
                                   className="btn-delete"
                                   title="Delete appointment"
                                 >

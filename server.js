@@ -21,11 +21,11 @@ app.use(helmet({
     useDefaults: true,
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "https://www.google.com", "https://maps.googleapis.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://www.google.com", "https://maps.googleapis.com", "https://maps.gstatic.com"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", "data:", "https://www.google.com", "https://maps.gstatic.com"],
       frameSrc: ["'self'", "https://www.google.com"],
-      connectSrc: ["'self'"],
+      connectSrc: ["'self'", "https://maps.googleapis.com"],
     },
   },
   crossOriginEmbedderPolicy: false,

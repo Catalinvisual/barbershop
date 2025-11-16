@@ -113,6 +113,22 @@
   padding: 2rem 0;
 }
 
+/* Fluid container for Admin page */
+.admin-main .container {
+  max-width: none;
+  width: 100%;
+  margin: 0 auto;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+@media (max-width: 480px) {
+  .admin-main .container {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}
+
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));

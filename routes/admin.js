@@ -86,6 +86,16 @@ router.delete('/appointments/:id', authenticateToken, async (req, res) => {
   }
 });
 
+router.post('/appointments/migrate-ids', authenticateToken, async (req, res) => {
+  try {
+    const result = await googleSheetsService.ensureAppointmentIds();
+    res.json({ success: true, ...result });
+  } catch (error) {
+    console.error('Migrate appointment IDs error:', error);
+    res.status(500).json({ message: 'Failed to migrate appointment IDs' });
+  }
+});
+
 router.get('/messages', authenticateToken, async (req, res) => {
   try {
     const messages = await googleSheetsService.getAllMessages();
