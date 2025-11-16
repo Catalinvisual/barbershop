@@ -30,35 +30,38 @@ class EmailService {
       const mailOptions = {
         from: `"Barbershop" <${process.env.EMAIL_USER}>`,
         to: to,
-        subject: 'Appointment Confirmation - Barbershop',
+        subject: 'Appointment Confirmation – Barbershop',
         html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <div style="background-color: #2c3e50; color: white; padding: 20px; text-align: center;">
-              <h1 style="margin: 0;">Barbershop</h1>
-              <p style="margin: 10px 0 0 0;">Appointment Confirmation</p>
-            </div>
-            <div style="padding: 30px; background-color: #f8f9fa;">
-              <h2 style="color: #2c3e50;">Hello ${appointmentData.name},</h2>
-              <p>Your appointment has been confirmed! Here are the details:</p>
-              
-              <div style="background-color: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                <h3 style="color: #2c3e50; margin-top: 0;">Appointment Details</h3>
-                <p><strong>Service:</strong> ${appointmentData.service}</p>
-                <p><strong>Date:</strong> ${appointmentData.date}</p>
-                <p><strong>Time:</strong> ${appointmentData.time}</p>
-                <p><strong>Status:</strong> <span style="color: #27ae60;">Confirmed</span></p>
-                ${appointmentData.notes ? `<p><strong>Notes:</strong> ${appointmentData.notes}</p>` : ''}
+          <div style="background:#f3f4f6; padding:24px; font-family: Arial, Helvetica, sans-serif;">
+            <div style="max-width:640px; margin:0 auto; background:#ffffff; border-radius:12px; overflow:hidden; box-shadow:0 10px 25px rgba(0,0,0,0.08);">
+              <div style="background:#1f2937; color:#fff; padding:24px; text-align:center;">
+                <div style="font-size:24px; font-weight:700; letter-spacing:0.5px;">Barbershop</div>
+                <div style="margin-top:6px; font-size:14px; opacity:0.9;">Appointment Confirmation</div>
               </div>
-              
-              <p>If you need to reschedule or cancel, please contact us as soon as possible.</p>
-              <p>We look forward to seeing you!</p>
-              
-              <div style="text-align: center; margin-top: 30px;">
-                <p style="color: #7f8c8d; font-size: 14px;">
-                  Barbershop Team<br>
-                  Phone: (555) 123-4567<br>
-                  Email: info@barbershop.com
-                </p>
+              <div style="padding:28px;">
+                <div style="font-size:18px; color:#111827;">Hi ${appointmentData.name},</div>
+                <p style="margin:12px 0 0; color:#374151; font-size:14px; line-height:1.6;">Thank you for booking with us! Your appointment is confirmed. Here are the details:</p>
+                <div style="margin:20px 0; border:1px solid #e5e7eb; border-radius:10px; padding:16px;">
+                  <div style="display:flex; gap:12px; align-items:center; margin-bottom:10px;">
+                    <div style="width:8px; height:8px; background:#10b981; border-radius:50%;"></div>
+                    <div style="font-weight:600; color:#111827;">Appointment Details</div>
+                  </div>
+                  <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:14px; color:#374151;">
+                    <div><span style="color:#6b7280;">Service:</span> <span style="font-weight:600; color:#111827;">${appointmentData.service}</span></div>
+                    <div><span style="color:#6b7280;">Date:</span> <span style="font-weight:600; color:#111827;">${appointmentData.date}</span></div>
+                    <div><span style="color:#6b7280;">Time:</span> <span style="font-weight:600; color:#111827;">${appointmentData.time}</span></div>
+                    <div><span style="color:#6b7280;">Status:</span> <span style="font-weight:600; color:#10b981;">Confirmed</span></div>
+                    ${appointmentData.notes ? `<div style="grid-column:1 / -1;"><span style="color:#6b7280;">Notes:</span> <span style="color:#111827;">${appointmentData.notes}</span></div>` : ''}
+                  </div>
+                </div>
+                <p style="margin:0; color:#374151; font-size:14px; line-height:1.6;">If you need to reschedule or cancel, please contact us.</p>
+                <div style="margin-top:22px; text-align:center;">
+                  <a href="#" style="display:inline-block; background:#111827; color:#fff; text-decoration:none; padding:10px 16px; border-radius:8px; font-size:14px;">Thank you</a>
+                </div>
+                <div style="margin-top:28px; text-align:center; color:#6b7280; font-size:12px;">
+                  <div>Barbershop Team</div>
+                  ${process.env.ADMIN_EMAIL ? `<div style="margin-top:4px;">${process.env.ADMIN_EMAIL}</div>` : ''}
+                </div>
               </div>
             </div>
           </div>

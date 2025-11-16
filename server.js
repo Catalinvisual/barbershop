@@ -91,6 +91,7 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📧 Email service: ${process.env.EMAIL_USER ? 'Configured' : 'Not configured'}`);
+  const emailConfigured = present('EMAIL_HOST') && present('EMAIL_USER') && present('EMAIL_PASS');
+  console.log(`📧 Email service: ${emailConfigured ? 'Configured' : 'Not configured'}`);
   console.log(`📊 Google Sheets: ${process.env.GOOGLE_SHEET_ID ? 'Configured' : 'Not configured'}`);
 });

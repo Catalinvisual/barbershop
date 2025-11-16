@@ -20,10 +20,7 @@ class GoogleSheetsService {
 
   async addAppointment(appointmentData) {
     try {
-      // Get the next available ID
-      const existingAppointments = await this.getAllAppointments();
-      const maxId = existingAppointments.reduce((max, apt) => Math.max(max, parseInt(apt.id) || 0), 0);
-      const newId = maxId + 1;
+      const newId = Date.now().toString();
 
       const appointmentWithId = {
         ...appointmentData,

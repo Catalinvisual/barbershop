@@ -32,19 +32,13 @@ router.post('/book', [
       createdAt: new Date().toISOString()
     };
 
-    // Try to add to Google Sheets, but don't fail if it doesn't work
-    try {
-      await googleSheetsService.addAppointment(appointmentData);
-    } catch (sheetsError) {
+    googleSheetsService.addAppointment(appointmentData).catch((sheetsError) => {
       console.log('Google Sheets failed, but appointment will still be processed:', sheetsError.message);
-    }
+    });
     
-    // Try to send email, but don't fail the booking if email fails
-    try {
-      await emailService.sendConfirmationEmail(email, appointmentData);
-    } catch (emailError) {
+    emailService.sendConfirmationEmail(email, appointmentData).catch(() => {
       console.log('Email failed but booking successful - appointment booked without email confirmation');
-    }
+    });
     
     res.json({ 
       success: true, 
