@@ -91,10 +91,12 @@ class EmailService {
       '',
       '--bnd',
       'Content-Type: text/plain; charset="UTF-8"',
+      'Content-Transfer-Encoding: 7bit',
       '',
       text,
       '--bnd',
       'Content-Type: text/html; charset="UTF-8"',
+      'Content-Transfer-Encoding: 7bit',
       '',
       html,
       '--bnd--'
