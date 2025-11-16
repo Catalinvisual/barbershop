@@ -98,17 +98,22 @@ const Admin = () => {
   const fetchAppointments = async () => {
     try {
       const token = localStorage.getItem('adminToken');
+      console.log('Fetching appointments...');
       const response = await axios.get('/api/admin/appointments', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
       
+      console.log('Appointments response:', response.data);
+      
       if (response.data.success) {
+        console.log(`Setting ${response.data.appointments.length} appointments`);
         setAppointments(response.data.appointments);
         await autoCompletePastAppointments(response.data.appointments);
       }
     } catch (error) {
+      console.error('Fetch appointments error:', error);
       if (error.response?.status === 401 || error.response?.status === 403) {
         handleLogout();
       } else {
@@ -345,6 +350,7 @@ const Admin = () => {
         toast.error('Cannot delete appointment without ID');
         return;
       }
+      console.log(`Deleting appointment with ID: ${id}`);
       const token = localStorage.getItem('adminToken');
       const response = await axios.delete(`/api/admin/appointments/${id}`, {
         headers: {
@@ -352,11 +358,16 @@ const Admin = () => {
         }
       });
       
+      console.log('Delete response:', response.data);
+      
       if (response.data.success) {
         toast.success('Appointment deleted successfully');
-        fetchAppointments();
+        console.log('Fetching appointments after delete...');
+        await fetchAppointments();
+        console.log('Appointments fetched after delete');
       }
     } catch (error) {
+      console.error('Delete appointment error:', error);
       toast.error('Failed to delete appointment');
     }
   };

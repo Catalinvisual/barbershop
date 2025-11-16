@@ -198,19 +198,24 @@ class GoogleSheetsService {
 
   async deleteAppointment(id) {
     try {
+      console.log(`Attempting to delete appointment with ID: ${id}`);
+      
       // If Google Sheets is not configured, delete from local store
       if (!this.spreadsheetId) {
         console.log(`Google Sheets not configured, deleting local appointment ${id}`);
+        console.log(`Local appointments before delete:`, this.localAppointments.map(a => a.id));
         this.localAppointments = this.localAppointments.filter(a => String(a.id) !== String(id));
+        console.log(`Local appointments after delete:`, this.localAppointments.map(a => a.id));
         return true;
       }
 
       // Find the row number for this appointment ID
       const appointments = await this.getAllAppointments();
+      console.log(`Found ${appointments.length} appointments total`);
       const appointment = appointments.find(apt => String(apt.id) === String(id));
       
       if (!appointment) {
-        console.log(`Appointment with ID ${id} not found`);
+        console.log(`Appointment with ID ${id} not found in ${appointments.length} appointments`);
         return false;
       }
 
@@ -218,13 +223,17 @@ class GoogleSheetsService {
       const rowIndex = appointments.findIndex(apt => String(apt.id) === String(id)) + 2; // +2 for header row and 1-based indexing
 
       const range = `appoiments!A${rowIndex}:K${rowIndex}`;
+      console.log(`Clearing range: ${range}`);
       await this.sheets.spreadsheets.values.clear({
         spreadsheetId: this.spreadsheetId,
         range: range,
       });
+      console.log(`Successfully cleared row ${rowIndex} from Google Sheets`);
 
       // Also remove from local fallback store if present
-      this.localAppointments = this.localAppointments.filter(a => a.id !== id);
+      console.log(`Local appointments before cleanup:`, this.localAppointments.map(a => a.id));
+      this.localAppointments = this.localAppointments.filter(a => String(a.id) !== String(id));
+      console.log(`Local appointments after cleanup:`, this.localAppointments.map(a => a.id));
       return true;
     } catch (error) {
       console.error('Error deleting appointment:', error);
